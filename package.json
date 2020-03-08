@@ -1,0 +1,20 @@
+{
+  "name": "play-along",
+  "version": "1.0.0",
+  "description": "Visualise and animate various grooves to aid learning.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Robert Byrne",
+  "license": "GNU",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.12.1",
+    "bootstrap": "^4.4.1",
+    "github-buttons": "^2.7.0",
+    "jquery": "^3.4.1",
+    "mdbootstrap": "^4.13.0",
+    "popper.js": "^1.16.1",
+    "tone": "^13.8.25"
+  }
+}

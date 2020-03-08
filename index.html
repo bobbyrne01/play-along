@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en" class="h-100">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <meta name="keywords" content="Metronome, Timer, Music, BPM, Beats, Drums, Drum, Notation, Groove, Learn">
+      <meta name="author" content="Robert Byrne">
+
+      <link rel="shortcut icon" href="fav.ico" type="image/x-icon">
+
+      <link rel="stylesheet" href="libs/mdbootstrap/css/bootstrap.min.css">
+      <link rel="stylesheet" href="libs/mdbootstrap/css/mdb.min.css">
+      <link rel="stylesheet" href="css/custom-styles.css">
+    </head>
+
+    <body class="d-flex flex-column h-100">
+
+      <header>
+        <div class="collapse dark_theme_nav_and_footer" id="navbarHeader">
+          <div class="container">
+            <div class="row">
+              <form class="range-field my-4 w-25">
+                <div class="custom-switch custom-control spacing_under_mute">
+                  <input type="checkbox" id="mute" class="custom-control-input" />
+                  <label for="mute" class="custom-control-label text-white">Mute</label>
+                </div>
+                <div>
+                  <label class="text-white" for="volume">Volume</label>
+                  <input type="range" class="custom-range" min="-20" max="0" id="volume" value="0">
+                </div>
+              </form>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-primary dropdown-toggle config_button" type="button" id="interval_button" data-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false">
+                  8th note triplets
+                </button>
+                <div id="interval_list" class="dropdown-menu support_dark_theme_dropdown" aria-labelledby="interval_button">
+                  <a class="dropdown-item support_dark_theme_text" href="#" data-interval="4n">4th notes</a>
+                  <a class="dropdown-item support_dark_theme_text" href="#" data-interval="8n">8th notes</a>
+                  <a class="dropdown-item support_dark_theme_text" href="#" data-interval="8t">8th note triplets</a>
+                  <a class="dropdown-item support_dark_theme_text" href="#" data-interval="16n">16th notes</a>
+                </div>
+              </div>
+              <div>
+                <div>
+                  <button id="add_bar" type="button" class="btn btn-sm btn-success config_button">Add Bar <i class="fas fa-plus float_right"></i></button>
+                </div>
+                <div>
+                  <button id="delete_bar" type="button" class="btn btn-sm btn-danger config_button">Delete Bar <i class="fas fa-minus float_right"></i></button>
+                </div>
+                <div>
+                  <button id="reset_groove" type="button" class="btn btn-sm btn-danger config_button">Reset groove <i class="fas fa-redo float_right"></i></button>
+                </div>
+              </div>
+              <div>
+                <div>
+                  <button id="export_groove" type="button" class="btn btn-sm btn-secondary config_button">Export Groove <i class="fas fa-download float_right"></i></button>
+                </div>
+                <div>
+                  <button id="import_groove" type="button" class="btn btn-sm btn-secondary config_button">Import Groove<i class="fas fa-file-import float_right"></i></button>
+                </div>
+                <div>
+                  <button id="settings" type="button" class="btn btn-sm btn-secondary config_button">Settings<i class="fas fa-cogs float_right"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="navbar navbar-dark dark_theme_nav_and_footer box-shadow">
+          <div class="container d-flex justify-content-between">
+            <a href="#" class="navbar-brand d-flex align-items-center">
+              <strong>Play Along</strong>
+              <div class="no_line_break drum_icon_container">
+                <i class="fas fa-drum"></i>
+              </div>
+            </a>
+
+            <nav class="nav justify-content-center float_right">
+
+              <div class="nav-link">
+                <div class="custom-control white_text_dark_mode">
+                  <i id="settings_quick" class="fas fa-cog cog_spacing"></i>
+                  <i id="day_icon" class="fas fa-moon dark_toggle"></i>
+                  <i id="night_icon" class="far fa-moon dark_toggle"></i>
+                </div>
+              </div>
+
+              <div class="no_line_break github_icon_container">
+                <a class="github-button" href="https://github.com/bobbyrne01/play-along" aria-label="Star bobbyrne01/play-along on GitHub">Star</a>
+              </div>
+              <button id="hamburger_button" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader"
+                aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
+                <div id="animated_icon"><span></span><span></span><span></span></div>
+              </button>
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      <div class="modal fade" id="basicExampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Export</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="export_form">
+                <div>
+                  <p>
+                    The JSON (blue) text below can be used to backup the current groove for later use.
+                  </p>
+
+                  <p>
+                    There are currently two options available.
+                  </p>
+
+                  <ol>
+                    <!--<li>
+                      Save to cookie (check Settings) <button type="submit" id="save_groove_to_cookie" class="btn btn-sm btn-success" disabled>Save</button>
+                    </li>-->
+                    <li>
+                      Copy the JSON text below and paste it into a new issue <a href="https://github.com/bobbyrne01/play-along/issues" target="_blank">here</a>, to have it included permanently in the app for everyone to use.
+                    </li>
+                    <li>
+                      Copy the JSON text below and paste it into a local file. Later, provide the same JSON to the 'Import Groove' dialog to resume.
+                    </li>
+                  </ol>
+                  <!--<i id="copy_exported_groove" class="fas fa-copy"></i>-->
+                </div>
+                <div class="md-form no_new_line">
+                  <input type="text" id="exported_groove_name" class="form-control" required>
+                  <label class="support_dark_theme_text" for="exported_groove_name">Groove name</label>
+                </div>
+              </form>
+
+
+              <div class="form-group shadow-textarea">
+                <label for="export_modal_body">Groove in JSON structure:</label>
+                <textarea class="form-control z-depth-1" id="export_modal_body" rows="5" readonly></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal fade" id="import_groove_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Import Groove</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group shadow-textarea">
+                <label for="groove_json_to_import">Paste groove JSON</label>
+                <textarea class="form-control z-depth-1" id="groove_json_to_import" rows="3"></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button id="close_import_groove_modal" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal fade" id="settings_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Settings</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group shadow-textarea">
+                <h3>Cookie <i class="fas fa-cookie-bite"></i></h3>
+                <p>
+                  By enabling the checkbox below, you agree to allowing this application save to and read from a single cookie on your computer.
+                </p>
+                <p>
+                  The cookie can contain a backup of your custom grooves and some preferences (e.g Dark mode by default etc).
+                </p>
+                Accept <input type="checkbox" class="cookie_permission" />
+                <div class="form-group shadow-textarea">
+                  <label for="cookie_data">Cookie data stored on your computer:</label>
+                  <textarea class="form-control z-depth-1" id="cookie_data" rows="5" readonly></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <main role="main">
+        <div id="spinner">
+          <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
+        </div>
+        <div id="main_content" class="hidden">
+          <form id="details">
+            <div id="controls">
+              <table id="visibility_toggles">
+                <tr>
+                  <td>
+                    <div id="toggle_grouping_configs_container" class="custom-switch custom-control">
+                      <input type="checkbox" id="toggle_grouping_configs" class="custom-control-input" checked />
+                      <label for="toggle_grouping_configs" class="custom-control-label support_dark_theme_text">Selectors</label>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div id="bars_visible_container" class="custom-switch custom-control">
+                      <input type="checkbox" id="bars_visible" class="custom-control-input" />
+                      <label id="bars_visible_label" for="bars_visible" class="custom-control-label support_dark_theme_text">Active bar</label>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+
+              <div class="md-form no_new_line">
+                <input type="number" id="bpm" class="form-control" value="100" min="10" max="250" required>
+                <label class="support_dark_theme_text" for="bpm">BPM</label>
+              </div>
+              <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="groove_selector" data-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false">
+                  Master Blaster
+                </button>
+                <div id="groove_selections" class="dropdown-menu support_dark_theme_dropdown" aria-labelledby="groove_selector">
+                  <h6 class="dropdown-header">Grooves</h6>
+                  <a class="dropdown-item" href="#">Master Blaster</a>
+                </div>
+              </div>
+
+              <button id="toggle_playback" type="submit" class="btn btn-success">
+                <i class="fas fa-play"></i> <span>Play</span>
+              </button>
+
+              <div class="no_line_break right_view">
+                <div id="counter_container" class="no_line_break">
+                  <code id="counter">0:0:0</code>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <div>
+            <div id="pattern"></div>
+            <div id="canvas_container"></div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="footer mt-auto py-3 dark_theme_nav_and_footer">
+        <div class="container">
+          <div>
+            <span class="text-muted footer_text">
+              Free, no ads, no tracking but donations are appreciated. Enjoy! <i class="far fa-copyright"></i> 2020
+            </span>
+          </div>
+          <div>
+            <span class="text-muted footer_text">
+              <i class="fab fa-paypal" title="Paypal address"></i> https://www.paypal.me/bobbyrne01
+              <i class="fab fa-bitcoin" title="Bitcoin address"></i> 12B55LFbkB83NB7eJNGWofNXKUb9cehhSp
+            </span>
+          </div>
+        </div>
+      </footer>
+
+      <script src="libs/jquery/dist/jquery.min.js"></script>
+      <script src="libs/popper.js/dist/umd/popper.min.js"></script>
+      <script src="libs/mdbootstrap/js/bootstrap.min.js"></script>
+      <script src="libs/mdbootstrap/js/mdb.min.js"></script>
+      <script src="libs/tone/build/Tone.js"></script>
+      <script src="libs/@fortawesome/fontawesome-free/js/all.min.js"></script>
+      <script src="libs/github-buttons/dist/buttons.js"></script>
+      <script src="js/action.js"></script>
+
+    </body>
+</html>
