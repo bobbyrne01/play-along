@@ -3,7 +3,9 @@ Play along <g-emoji class="g-emoji" alias="drum" fallback-src="https://github.gi
 
 A collection of drum notation for popular grooves.
 
-Grooves can be played and will animate using tabular and wheel visualisations.
+Grooves can be played and will animate in tabular and wheel fashion.
+
+![](demo.gif)
 
 The goal is to gather a huge collection of popular grooves, so please feel free to contribute extra grooves or provide corrections to existing ones [here](https://github.com/bobbyrne01/play-along/issues).
 
