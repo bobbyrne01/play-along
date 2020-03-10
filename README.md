@@ -1,9 +1,9 @@
 Play along <g-emoji class="g-emoji" alias="drum" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f941.png">🥁</g-emoji>
 ==
 
-A collection of drum notation for popular grooves.
+A collection of playable drum notation for popular grooves.
 
-Grooves can be played and will animate in tabular and wheel fashion.
+Grooves can be played and will animate in tabular and wheel forms.
 
 ![](demo.gif)
 
@@ -11,4 +11,4 @@ The goal is to gather a huge collection of popular grooves, so please feel free 
 
 #### Attributions
 
-Audio samples, in part, from [MusicRadar](https://www.musicradar.com/news/sampleradar-494-free-essential-drum-kit-samples).
+Audio samples from [MusicRadar](https://www.musicradar.com).
