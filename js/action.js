@@ -1053,7 +1053,7 @@ function fetchGrooves(callback) {
           } else {
             htmlContent = upperCased;
           }
-          $option = $('<a>').addClass('dropdown-item').attr('href', '#').text(htmlContent).addClass('support_dark_theme_text');
+          $option = $('<a>').addClass('dropdown-item').attr('href', '#').html(htmlContent).addClass('support_dark_theme_text');
           $option.on('click', handleGrooveChange);
           $grooveSelectionsElement.append($option);
         }
