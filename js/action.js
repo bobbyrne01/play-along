@@ -34,7 +34,7 @@ var isPlaying = false;
 var colIndex = FIRST_NOTE_INDEX;
 var soundsForEachType = {};
 var barCount = 2;
-var grooveName = 'Master Blaster';
+var grooveName = 'Lust for Life';
 var onlyShowActiveBar = false;
 var settings = {
   dark_mode: false,
@@ -402,8 +402,9 @@ function handleDarkModeToggle() {
 
 function initializeInterface() {
   fetchAllSoundFilenames(function() {
-    drawVisuals();
     fetchGrooves(function() {
+      drawVisuals();
+
       document.getElementById('spinner').classList.add('hidden');
       document.getElementById('main_content').classList.remove('hidden');
       $togglePlaybackElement.focus();
@@ -446,6 +447,7 @@ function handleGrooveChange() {
   circlesTable.parentNode.removeChild(circlesTable);
   grooveName = this.text;
   $('#groove_selector').text(grooveName);
+
   drawVisuals();
   reset();
 }
@@ -1030,10 +1032,24 @@ function fetchGrooves(callback) {
     if (this.status == 200) {
       var htmlObject = $(this.response);
       var grooves = [];
+      var requestedGrooveFromUrl = getUrlParameter('groove');
+      if (requestedGrooveFromUrl !== null && requestedGrooveFromUrl !== undefined) {
+        requestedGrooveFromUrl = requestedGrooveFromUrl.replace(/ /g, '_');
+      }
+      var isRequestedGrooveFound = false;
       var listItem = htmlObject.find('li a');
       listItem.each(function() {
-        grooves.push(this.text.substring(0, this.text.length - 1));
+        var grooveNameUnderScored = this.text.substring(0, this.text.length - 1);
+        grooves.push(grooveNameUnderScored);
+        if (grooveNameUnderScored == requestedGrooveFromUrl) {
+          isRequestedGrooveFound = true;
+        }
       });
+      if (isRequestedGrooveFound) {
+        grooveName = requestedGrooveFromUrl.replace(/_/g, ' ');
+        $('#groove_selector').text(grooveName);
+      }
+
       $grooveSelectionsElement.children().not(':first-child').remove();
       var $option = $('<a>').addClass('dropdown-item').attr('href', '#').html('Custom<i class="far fa-star float_right"></i>').addClass('support_dark_theme_text');
       $option.on('click', handleGrooveChange);
@@ -1190,4 +1206,19 @@ function getCookie(name) {
 }
 function eraseCookie(name) {
     document.cookie = name + '=; Max-Age=-99999999;';
+}
+
+function getUrlParameter(sParam) {
+  var sPageURL = window.location.search.substring(1),
+    sURLVariables = sPageURL.split('&'),
+    sParameterName,
+    i;
+
+  for (i = 0; i < sURLVariables.length; i++) {
+    sParameterName = sURLVariables[i].split('=');
+
+    if (sParameterName[0] === sParam) {
+      return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+    }
+  }
 }
