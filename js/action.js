@@ -47,6 +47,7 @@ var expectedSoundGroupings;
 var soundGroupings;
 var data;
 var $grooveSelectElement;
+var $grooveSelectionsElement;
 var loopId;
 var $bpmCurrent;
 var $bpmElement;
@@ -61,10 +62,14 @@ var $muteElement;
 var $exportGrooveElement;
 var $importGrooveElement;
 var $settingsElement;
+var $settingsNavElement;
 var $intervalOptions;
 var $toggleGroupingConfigs;
 var $barsVisible;
+var $closeImportGrooveModalElement;
+var $copyExportedGrooveElement;
 var $cookiePermission;
+var $exportForm;
 
 $(document).ready(function() {
   $bpmElement = $('#bpm');
@@ -82,11 +87,19 @@ $(document).ready(function() {
   $intervalOptions = $('#interval_list .dropdown-item');
   $toggleGroupingConfigs = $('#toggle_grouping_configs');
   $barsVisible = $('#bars_visible');
+  $grooveSelectionsElement = $('#groove_selections');
   $cookiePermission = $('.cookie_permission');
   $saveGrooveToCookie = $('#save_groove_to_cookie');
+  $settingsNavElement = $('#settings_quick');
+  $closeImportGrooveModalElement = $('#close_import_groove_modal');
+  $copyExportedGrooveElement = $('#copy_exported_groove');
+  $exportForm = $('#export_form');
 
+  $muteElement.on('change', handleMuteToggle);
+  $volumeElement.on('input change', handleVolumeChange);
+  $detailsElement.submit(handlePlaybackToggle);
   $('.dark_toggle').on('click', handleDarkModeToggle);
-  $('#copy_exported_groove').on('click', handleCopyExportedGroove);
+  $copyExportedGrooveElement.on('click', handleCopyExportedGroove);
   $toggleGroupingConfigs.on('click', handleGroupingConfigToggle);
   $barsVisible.on('click', handleBarsVisibleToggle);
 	$bpmElement.on('keyup', handleBpmKeyPress);
@@ -96,24 +109,36 @@ $(document).ready(function() {
   $hamburgerElement.on('click', handleHamburgerToggle);
   $intervalOptions.on('click', handleIntervalChange);
   $cookiePermission.on('click', handleCookiePermissionToggle);
-  $('#export_form').on('submit', handleExportForm);
+  $exportForm.on('submit', handleExportForm);
   $saveGrooveToCookie.on('click', handleSaveGrooveToCookie);
+  $exportGrooveElement.on('click', handleGrooveExport);
+  $importGrooveElement.on('click', handleGrooveImport);
+  $settingsElement.on('click', handleSettings);
+  $settingsNavElement.on('click', handleSettings);
+  $closeImportGrooveModalElement.on('click', handleGrooveImportModalClose);
   $(document).click(ensureDropdownsAreClosed);
 
   initializeInterface();
 });
 
+function handleMuteToggle() {
+  Tone.Master.mute = this.checked;
+}
+
+function handleVolumeChange() {
+  for (var i = 0; i < soundGroupings.length; i++) {
+    soundGroupings[i].audio.volume.value = this.value;
+  }
+}
+
 function handleExportForm() {
   var grooveJson = document.getElementById('export_modal_body').textContent;
-  console.log(grooveJson);
   settings.custom_grooves.push(grooveJson);
   setCookie(COOKIE_NAME, JSON.stringify(settings));
   return false;
 }
 
-function handleSaveGrooveToCookie() {
-
-}
+function handleSaveGrooveToCookie() {}
 
 function handleCookiePermissionToggle() {
   var cookie;
@@ -176,7 +201,7 @@ function handleCookiePermissionToggle() {
 }
 
 function handleCopyExportedGroove() {
-  copyToClipboard($('#export_modal_body').html());
+  //copyToClipboard($('#export_modal_body').html());
 }
 
 function handleBarsVisibleToggle() {
@@ -379,26 +404,6 @@ function initializeInterface() {
   fetchAllSoundFilenames(function() {
     drawVisuals();
     fetchGrooves(function() {
-      $detailsElement.submit(handlePlaybackToggle);
-
-      $muteElement.on('change', function() {
-        Tone.Master.mute = this.checked;
-      });
-
-      $volumeElement.on('input change', function() {
-        for (var i = 0; i < soundGroupings.length; i++) {
-          soundGroupings[i].audio.volume.value = this.value;
-        }
-      });
-
-      $exportGrooveElement.on('click', handleGrooveExport);
-      $importGrooveElement.on('click', handleGrooveImport);
-      $settingsElement.on('click', handleSettings);
-      $('#settings_quick').on('click', handleSettings);
-
-      var $closeImportGrooveModalElement = $('#close_import_groove_modal');
-      $closeImportGrooveModalElement.click(handleGrooveImportModalClose);
-
       document.getElementById('spinner').classList.add('hidden');
       document.getElementById('main_content').classList.remove('hidden');
       $togglePlaybackElement.focus();
@@ -785,7 +790,7 @@ function createRowForNotationTable(id, name, soundType, soundFile, availableSoun
       notes[i][id] = '';
     }
 
-    var $cell = $('<td>').text(notes[i][id]).addClass('note_table_cell');
+    var $cell = $('<td>').text(notes[i][id]).addClass('note_table_cell').addClass('playable_note');
     if (document.body.classList.contains('dark_theme_bg_color')) {
       $cell.addClass('white_text_dark_mode');
     }
@@ -911,7 +916,7 @@ function drawCircleWithNotes(id, data) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   drawCircle(ctx);
   for (var k = 0 ; k < data.length; k++) {
-    if (data[k][id] == TRIGGER_NOTE) {
+    if (data[k][id] === TRIGGER_NOTE) {
       var asPer = k / data.length * 100;
       var asAng = asPer / 100 * 359 - 90;
       drawPoint(ctx, asAng, 1, NORMAL_POINT_SIZE, CANVAS_DRAW_COLOR);
@@ -928,9 +933,10 @@ function stepVisuals(time) {
 
     if (onlyShowActiveBar) {
       $('.member_of_bars').css('display', 'none');
-      var some = barNumber;
-      $('.member_of_bar_' + some).css('display', '');
+      $('.member_of_bar_' + barNumber).css('display', '');
     }
+
+    removeCurrentNoteIndicator();
 
     for (var i = 1; i < (animatedNotationElement.rows.length - 1); i++) {
       var soundGroupingId = animatedNotationElement.rows[i].getAttribute('data-id');
@@ -940,7 +946,7 @@ function stepVisuals(time) {
 
       if (cell.textContent === TRIGGER_NOTE && enabled) {
         try {
-          soundGroupings[i - 1].audio.start();
+          soundGroupings[i - 1].audio.start(time);
         } catch (err) {
           // Audio file may not have been buffered yet
         }
@@ -951,8 +957,6 @@ function stepVisuals(time) {
         stepCircle(canvas, enabled, data, soundGroupingId);
       }
     }
-
-    removeHighlightFromLastNotes(animatedNotationElement);
 
     var countCell = animatedNotationElement.rows[0].cells[colIndex];
     if (countCell.textContent === '1') {
@@ -976,18 +980,26 @@ function stepCircle(canvas, isEnabled, notes, id) {
   var asAng;
   if (isEnabled) {
     var adjustedColIndex = colIndex - FIRST_NOTE_INDEX;
-    asPer = adjustedColIndex / notes.length * 100;
-    asAng = asPer / 100 * 359 - 90;
+    asPer = calculateNumberAsPercentageOfAnother(adjustedColIndex, notes.length);
+    asAng = calculateNumberAsAngle(asPer);
     drawPoint(ctx, asAng, 1, LARGE_POINT_SIZE, '#00C851');
   }
 
   for (var k = 0 ; k < notes.length; k++) {
     if (notes[k][id] === TRIGGER_NOTE) {
-      asPer = k / notes.length * 100;
-      asAng = asPer / 100 * 359 - 90;
+      asPer = calculateNumberAsPercentageOfAnother(k, notes.length);
+      asAng = calculateNumberAsAngle(asPer);
       drawPoint(ctx, asAng, 1, NORMAL_POINT_SIZE, CANVAS_DRAW_COLOR);
     }
   }
+}
+
+function calculateNumberAsPercentageOfAnother(number, percentageOf) {
+  return number / percentageOf * 100;
+}
+
+function calculateNumberAsAngle(numberAsPercentage) {
+  return numberAsPercentage / 100 * 359 - 90;
 }
 
 function resetCircle(canvas, notes, id) {
@@ -997,25 +1009,17 @@ function resetCircle(canvas, notes, id) {
 
   for (var k = 0 ; k < notes.length; k++) {
     if (notes[k][id] === TRIGGER_NOTE) {
-      var asPer = k / notes.length * 100;
-      var asAng = asPer / 100 * 359 - 90;
+      var asPer = calculateNumberAsPercentageOfAnother(k, notes.length);
+      var asAng = calculateNumberAsAngle(asPer);
       drawPoint(ctx, asAng, 1, NORMAL_POINT_SIZE, CANVAS_DRAW_COLOR);
     }
   }
 }
 
-function removeHighlightFromLastNotes(animatedNotationElement) {
-  var numberOfRows = animatedNotationElement.rows.length;
-  var numberOfColumnsInRow = animatedNotationElement.rows[0].cells.length;
-  var cell;
-  for (var i = 1; i < (numberOfRows - 1); i++) {
-    if ((colIndex - 1) >= FIRST_NOTE_INDEX) {
-      cell = animatedNotationElement.rows[i].cells[colIndex - 1];
-    } else if (colIndex == FIRST_NOTE_INDEX) {
-      cell = animatedNotationElement.rows[i].cells[numberOfColumnsInRow - 1];
-    }
-    cell.classList.remove('green_background');
-  }
+function removeCurrentNoteIndicator() {
+  $('.playable_note').each(function() {
+    this.classList.remove('green_background');
+  });
 }
 
 function fetchGrooves(callback) {
@@ -1030,35 +1034,28 @@ function fetchGrooves(callback) {
       listItem.each(function() {
         grooves.push(this.text.substring(0, this.text.length - 1));
       });
-      $('#groove_selections').children().not(':first-child').remove();
+      $grooveSelectionsElement.children().not(':first-child').remove();
       var $option = $('<a>').addClass('dropdown-item').attr('href', '#').html('Custom<i class="far fa-star float_right"></i>').addClass('support_dark_theme_text');
       $option.on('click', handleGrooveChange);
-      $('#groove_selections').append($option);
-      $('#groove_selections').append($('<div>').addClass('dropdown-divider'));
+      $grooveSelectionsElement.append($option);
+      $grooveSelectionsElement.append($('<div>').addClass('dropdown-divider'));
       for (var i = 0; i < grooves.length; i++) {
         var spacedString = grooves[i].replace(/_/g, ' ');
         var upperCased = spacedString.charAt(0).toUpperCase() + spacedString.slice(1);
+        var htmlContent;
         if (upperCased !== 'Custom') {
           if (upperCased === 'Beat it' || upperCased === 'Billie jean') {
-            var t = upperCased + '<i class="fab fa-redhat float_right"></i>';
-            $option = $('<a>').addClass('dropdown-item').attr('href', '#').html(t).addClass('support_dark_theme_text');
-            $option.on('click', handleGrooveChange);
-            $('#groove_selections').append($option);
+            htmlContent = upperCased + '<i class="fab fa-redhat float_right"></i>';
           } else if (upperCased === 'Master blaster') {
-            var q = upperCased + '<i class="fas fa-glasses float_right"></i>';
-            $option = $('<a>').addClass('dropdown-item').attr('href', '#').html(q).addClass('support_dark_theme_text');
-            $option.on('click', handleGrooveChange);
-            $('#groove_selections').append($option);
+            htmlContent = upperCased + '<i class="fas fa-glasses float_right"></i>';
           } else if (upperCased === 'Highway to hell') {
-            var r = upperCased + '<i class="fas fa-bolt float_right"></i>';
-            $option = $('<a>').addClass('dropdown-item').attr('href', '#').html(r).addClass('support_dark_theme_text');
-            $option.on('click', handleGrooveChange);
-            $('#groove_selections').append($option);
+            htmlContent = upperCased + '<i class="fas fa-bolt float_right"></i>';
           } else {
-            $option = $('<a>').addClass('dropdown-item').attr('href', '#').text(upperCased).addClass('support_dark_theme_text');
-            $option.on('click', handleGrooveChange);
-            $('#groove_selections').append($option);
+            htmlContent = upperCased;
           }
+          $option = $('<a>').addClass('dropdown-item').attr('href', '#').text(htmlContent).addClass('support_dark_theme_text');
+          $option.on('click', handleGrooveChange);
+          $grooveSelectionsElement.append($option);
         }
       }
 
