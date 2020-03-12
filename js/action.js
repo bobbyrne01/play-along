@@ -285,7 +285,7 @@ function handleAddBar() {
   var animatedNotation = document.getElementById('animated_notation');
   var $cell;
   for (var k = 0; k < intervalMapping[interval].notes.length; k++) {
-    $cell = $('<th>').text(intervalMapping[interval].notes[k]).addClass('note_table_cell').addClass('bold');
+    $cell = $('<th>').text(intervalMapping[interval].notes[k]).addClass('note_table_cell').addClass('bold').addClass('playable_note');
     if (document.body.classList.contains('dark_theme_bg_color')) {
       $cell.addClass('white_text_dark_mode');
     }
@@ -295,7 +295,7 @@ function handleAddBar() {
   var ids = [];
   for (var i = 1; i < animatedNotation.rows.length - 1; i++) {
     for (var j = 0; j < intervalMapping[interval].notes.length; j++) {
-      $cell = $('<td>').addClass('note_table_cell');
+      $cell = $('<td>').addClass('note_table_cell').addClass('playable_note');
       $cell.on('click', handleNotationCellClick);
       if (document.body.classList.contains('dark_theme_bg_color')) {
         $cell.addClass('white_text_dark_mode');
