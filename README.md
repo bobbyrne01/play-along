@@ -1,7 +1,7 @@
-Play along <g-emoji class="g-emoji" alias="drum" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f941.png">🥁</g-emoji>
+Play Along | Drums <g-emoji class="g-emoji" alias="drum" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f941.png">🥁</g-emoji>
 ==
 
-A collection of playable drum notation for popular grooves.
+Learn to play drums with this collection of popular grooves.
 
 Grooves can be played and will animate in tabular and wheel forms.
 
