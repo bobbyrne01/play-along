@@ -119,6 +119,8 @@ $(document).ready(function() {
   $settingsNavElement.on('click', handleSettings);
   $closeImportGrooveModalElement.on('click', handleGrooveImportModalClose);
 
+  $('[data-toggle="tooltip"]').tooltip();
+
   initializeInterface();
 });
 
