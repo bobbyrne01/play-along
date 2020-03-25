@@ -34,7 +34,7 @@ var isPlaying = false;
 var colIndex = FIRST_NOTE_INDEX;
 var soundsForEachType = {};
 var barCount = 2;
-var grooveName = 'Lust for Life';
+var grooveName = 'Lust for life';
 var onlyShowActiveBar = false;
 var settings = {
   dark_mode: false,
@@ -63,7 +63,7 @@ var $exportGrooveElement;
 var $importGrooveElement;
 var $settingsElement;
 var $settingsNavElement;
-var $intervalOptions;
+var $intervalElement;
 var $toggleGroupingConfigs;
 var $barsVisible;
 var $closeImportGrooveModalElement;
@@ -72,6 +72,7 @@ var $cookiePermission;
 var $exportForm;
 
 $(document).ready(function() {
+  $('select').selectpicker();
   $bpmElement = $('#bpm');
   $togglePlaybackElement = $('#toggle_playback');
   $addBarElement = $('#add_bar');
@@ -84,7 +85,7 @@ $(document).ready(function() {
   $importGrooveElement = $('#import_groove');
   $settingsElement = $('#settings');
   $hamburgerElement = $('#hamburger_button');
-  $intervalOptions = $('#interval_list .dropdown-item');
+  $intervalElement = $('#interval_list');
   $toggleGroupingConfigs = $('#toggle_grouping_configs');
   $barsVisible = $('#bars_visible');
   $grooveSelectionsElement = $('#groove_selections');
@@ -107,7 +108,8 @@ $(document).ready(function() {
   $deleteBarElement.on('click', handleDeleteBar);
   $resetGrooveElement.on('click', handleResetGroove);
   $hamburgerElement.on('click', handleHamburgerToggle);
-  $intervalOptions.on('click', handleIntervalChange);
+  $intervalElement.on('change', handleIntervalChange);
+  $grooveSelectionsElement.on('change', handleGrooveChange);
   $cookiePermission.on('click', handleCookiePermissionToggle);
   $exportForm.on('submit', handleExportForm);
   $saveGrooveToCookie.on('click', handleSaveGrooveToCookie);
@@ -116,7 +118,6 @@ $(document).ready(function() {
   $settingsElement.on('click', handleSettings);
   $settingsNavElement.on('click', handleSettings);
   $closeImportGrooveModalElement.on('click', handleGrooveImportModalClose);
-  $(document).click(ensureDropdownsAreClosed);
 
   initializeInterface();
 });
@@ -200,9 +201,7 @@ function handleCookiePermissionToggle() {
   }
 }
 
-function handleCopyExportedGroove() {
-  //copyToClipboard($('#export_modal_body').html());
-}
+function handleCopyExportedGroove() {}
 
 function handleBarsVisibleToggle() {
   onlyShowActiveBar = !onlyShowActiveBar;
@@ -230,17 +229,8 @@ function handleHamburgerToggle() {
   document.getElementById('animated_icon').classList.toggle('open');
 }
 
-function ensureDropdownsAreClosed(e) {
-  $clicked = $(e.currentTarget);
-  if ($clicked.closest('.dropdown').length === 0) {
-    $('.dropdown').removeClass('show');
-    $('.dropdown-menu').removeClass('show');
-  }
-}
-
 function handleIntervalChange() {
-  interval = this.getAttribute('data-interval');
-  $('#interval_button').text(intervalMapping[interval].name);
+  interval = $intervalElement.val();
 
   isPlaying = false;
   Tone.Transport.stop();
@@ -445,8 +435,7 @@ function handleGrooveChange() {
   animatedNotation.parentNode.removeChild(animatedNotation);
   var circlesTable = document.getElementById('circles_table');
   circlesTable.parentNode.removeChild(circlesTable);
-  grooveName = this.text;
-  $('#groove_selector').text(grooveName);
+  grooveName = $grooveSelectionsElement.val();
 
   drawVisuals();
   reset();
@@ -860,7 +849,12 @@ function fetchGrooveAndDrawVisuals() {
       Tone.Transport.timeSignature = json.time_signature;
       interval = json.interval;
       barCount = json.bar_count;
-      $('#interval_button').text(intervalMapping[interval].name);
+
+      $('#interval_list').val(interval);
+      $('#interval_list').selectpicker('refresh');
+
+      $('#groove_selections').val(grooveName);
+      $('#groove_selections').selectpicker('refresh');
 
       soundGroupings = json.sound_groupings;
       for (var j = 0; j < soundGroupings.length; j++) {
@@ -1039,38 +1033,35 @@ function fetchGrooves(callback) {
       var isRequestedGrooveFound = false;
       var listItem = htmlObject.find('li a');
       listItem.each(function() {
+        var tokens = this.getAttribute('data-tokens');
         var grooveNameUnderScored = this.text.substring(0, this.text.length - 1);
-        grooves.push(grooveNameUnderScored);
+        grooves.push({
+          name: grooveNameUnderScored,
+          tokens: tokens
+        });
         if (grooveNameUnderScored == requestedGrooveFromUrl) {
           isRequestedGrooveFound = true;
         }
       });
       if (isRequestedGrooveFound) {
         grooveName = requestedGrooveFromUrl.replace(/_/g, ' ');
-        $('#groove_selector').text(grooveName);
       }
 
-      $grooveSelectionsElement.children().not(':first-child').remove();
-      var $option = $('<a>').addClass('dropdown-item').attr('href', '#').html('Custom<i class="far fa-star float_right"></i>').addClass('support_dark_theme_text');
-      $option.on('click', handleGrooveChange);
+      var $option = $('<option data-tokens="blank" value="Custom" title="Custom">Custom</option>');
       $grooveSelectionsElement.append($option);
-      $grooveSelectionsElement.append($('<div>').addClass('dropdown-divider'));
       for (var i = 0; i < grooves.length; i++) {
-        var spacedString = grooves[i].replace(/_/g, ' ');
+        var spacedString = grooves[i].name.replace(/_/g, ' ');
         var upperCased = spacedString.charAt(0).toUpperCase() + spacedString.slice(1);
         var htmlContent;
         if (upperCased !== 'Custom') {
-          if (upperCased === 'Beat it' || upperCased === 'Billie jean') {
-            htmlContent = upperCased + '<i class="fab fa-redhat float_right"></i>';
-          } else if (upperCased === 'Master blaster') {
-            htmlContent = upperCased + '<i class="fas fa-glasses float_right"></i>';
-          } else if (upperCased === 'Highway to hell') {
-            htmlContent = upperCased + '<i class="fas fa-bolt float_right"></i>';
+          htmlContent = upperCased;
+
+          if (grooves[i].tokens !== null) {
+            $option = $('<option data-tokens="' + grooves[i].tokens + '" value="' + htmlContent + '" title="' + htmlContent + '">' + htmlContent + '</option>');
           } else {
-            htmlContent = upperCased;
+            $option = $('<option value="' + htmlContent + '" title="' + htmlContent + '">' + htmlContent + '</option>');
           }
-          $option = $('<a>').addClass('dropdown-item').attr('href', '#').html(htmlContent).addClass('support_dark_theme_text');
-          $option.on('click', handleGrooveChange);
+
           $grooveSelectionsElement.append($option);
         }
       }
