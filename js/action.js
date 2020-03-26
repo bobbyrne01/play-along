@@ -590,38 +590,28 @@ function drawNotationTable() {
   $cell.addClass('hideable_column');
   $row.append($cell);
 
-  var $newSoundGroupTypeContainer = $('<div>').addClass('dropdown').addClass('full_width');
-  var $button = $('<button>').addClass('btn').addClass('btn-sm').addClass('btn-primary').addClass('dropdown-toggle').attr('id', 'new_sound_type')
-    .data('toggle', 'dropdown').attr('aria-haspopup', 'true').attr('aria-expanded', 'false');
-  var $divMenu = $('<div>').addClass('dropdown-menu').attr('id', 'new_sound_type_container').attr('aria-labelledby', 'new_sound_type').addClass('support_dark_theme_dropdown');
-
-  var list = [];
+  var $sel = $('<select>').addClass('selectpicker').attr('data-width', '90%').attr('id', 'new_sound_type');
   for (var prop in soundsForEachType) {
     if (Object.prototype.hasOwnProperty.call(soundsForEachType, prop)) {
-      var $option = $('<a>').addClass('dropdown-item').attr('href', '#').text(prop.charAt(0).toUpperCase() + prop.slice(1)).addClass('support_dark_theme_text');
-      $option.on('click', handleNewSoundTypeClick);
-      $divMenu.append($option);
-      list.push(prop.charAt(0).toUpperCase() + prop.slice(1));
+      var tex = prop.charAt(0).toUpperCase() + prop.slice(1);
+      var $op = $('<option>').val(tex).attr('title', tex).text(tex);
+      $sel.append($op);
     }
   }
-
-  $button.text(list[0]);
-  $button.addClass('fill_dropdown');
-  $newSoundGroupTypeContainer.append($button);
-  $newSoundGroupTypeContainer.append($divMenu);
 
   $row.append($('<td>').addClass('hideable_column'));
   $cell.addClass('hideable_column');
   $cell = $('<td>');
   $cell.addClass('hideable_column');
   $row.append($cell);
-  $cell = $('<td>').append($newSoundGroupTypeContainer);
+  $cell = $('<td>').append($sel);
   $cell.addClass('hideable_column');
   $row.append($cell);
   table.append($row);
 
   $('#pattern').append(table);
   $('.dropdown-toggle').dropdown();
+  $('select').selectpicker();
 }
 
 function handleNewSoundTypeClick() {
@@ -633,7 +623,7 @@ function handleAddSoundGroupClick() {
   if (newName !== '') {
     $('#new_sound_group_name').removeClass('red_border');
     var new_sound_group_name = $('#new_sound_group_name').val();
-    var new_sound_type = $('#new_sound_type').text().toLowerCase();
+    var new_sound_type = $('#new_sound_type').val().toLowerCase();
     var soundFile = soundsForEachType[new_sound_type].availableSoundNames[0];
 
     for (var k = 0; k < data.length; k++) {
@@ -675,26 +665,14 @@ function handleAddSoundGroupClick() {
 
 function createRowForNotationTable(id, name, soundType, soundFile, availableSoundNames, notes) {
   var $row = $('<tr>').attr('data-id', id);
-  var $div = $('<div>').addClass('dropdown').addClass('full_width');
-  var $button = $('<button>').addClass('btn').addClass('btn-sm').addClass('btn-primary').addClass('dropdown-toggle').attr('id', id + '_sound')
-    .data('toggle', 'dropdown').attr('aria-haspopup', 'true').attr('aria-expanded', 'false');
-  var $divMenu = $('<div>').addClass('dropdown-menu').attr('id', id + '_sound_list').attr('aria-labelledby', id + '_sound').addClass('support_dark_theme_dropdown');
-  if (document.body.classList.contains('dark_theme_bg_color')) {
-    $divMenu.toggleClass('dark_theme_bg_color');
-  }
-
+  var $sel = $('<select>').addClass('selectpicker').attr('data-width', '90%').attr('id', 'new_sound_type');
   for (var k = 0; k < availableSoundNames.length; k++) {
-    var $option = $('<a>').addClass('dropdown-item').attr('href', '#').text(availableSoundNames[k]).addClass('support_dark_theme_text');
-    if (document.body.classList.contains('dark_theme_bg_color')) {
-      $option.addClass('white_text_dark_mode');
-    }
-    $option.on('click', handleSoundSampleClick);
-    $divMenu.append($option);
+    var tex = availableSoundNames[k];
+    var $op = $('<option>').val(tex).attr('title', tex).text(tex);
+    $sel.append($op);
   }
-  $button.text(soundFile);
-  $button.addClass('fill_dropdown');
-  $div.append($button);
-  $div.append($divMenu);
+  $sel.on('change', handleSoundSampleClick);
+  $sel.val(soundFile);
 
   var $td = $('<td>').addClass('no_wrap');
   var con = $('<div>').addClass('custom-switch').addClass('custom-control');
@@ -768,7 +746,7 @@ function createRowForNotationTable(id, name, soundType, soundFile, availableSoun
   $td.addClass('hideable_column');
   $row.append($td);
 
-  $td = $('<td>').append($div).addClass('sound_group_input').addClass('min_width_sound');
+  $td = $('<td>').append($sel).addClass('sound_group_input').addClass('min_width_sound');
   $td.addClass('hideable_column');
   $row.append($td);
 
@@ -797,15 +775,12 @@ function createRowForNotationTable(id, name, soundType, soundFile, availableSoun
 }
 
 function handleSoundSampleClick() {
-  this.parentNode.classList.remove('show');
-  this.parentNode.parentNode.classList.remove('show');
-  this.parentNode.parentNode.firstChild.textContent = this.text;
-  var id = this.parentNode.parentNode.parentNode.parentNode.getAttribute('data-id');
-
+  var id = this.parentNode.parentNode.parentNode.getAttribute('data-id');
   for (var j = 0; j < soundGroupings.length; j++) {
     if (soundGroupings[j].id == id) {
-      soundGroupings[j].sound_file = this.text;
-      soundGroupings[j].audio = new Tone.Player('sounds/' + soundGroupings[j].sound_type + '/' + this.text + '.wav').toMaster();
+      var sound = $(this).val();
+      soundGroupings[j].sound_file = sound;
+      soundGroupings[j].audio = new Tone.Player('sounds/' + soundGroupings[j].sound_type + '/' + sound + '.wav').toMaster();
       break;
     }
   }
