@@ -1120,6 +1120,7 @@ function fetchAllSoundFilenames(callback) {
 }
 
 function handleGrooveExport() {
+  $('#settings_modal').modal('hide');
   var tempSoundGroupings = [];
   for (var i = 0; i < soundGroupings.length; i++) {
     var tempSoundGroup = {
@@ -1148,6 +1149,7 @@ function handleSettings() {
 }
 
 function handleGrooveImport() {
+  $('#settings_modal').modal('hide');
   $('#import_groove_modal').modal({});
 }
 
