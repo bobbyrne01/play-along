@@ -2,10 +2,10 @@
 <html lang="en" class="h-100">
     <head>
       <meta charset="utf-8">
-      <meta name="description" content="Learn to play drums with this collection of popular grooves">
+      <meta name="description" content="Learn to play drums with this collection of popular grooves. Groove notation is visualized and voiced by sample instruments">
       <meta name="author" content="Robert Byrne">
       <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-      <meta name="keywords" content="Play, Along, Metronome, BPM, Beats, Drums, Drum, Notation, Groove, Learn, Visualization">
+      <meta name="keywords" content="Play, Along, Metronome, BPM, Beats, Drums, Drum, Notation, Groove, Grooves, Learn, Visualization">
 
       <title>Play Along | Drums</title>
 
@@ -37,8 +37,6 @@
                   <i id="reset_groove" class="fas fa-redo cog_spacing" data-toggle="tooltip" data-placement="bottom" title="Reset Groove"></i>
                   <i class="cog_spacing"> | </i>
                   <i id="settings_quick" class="fas fa-cog cog_spacing" data-toggle="tooltip" data-placement="bottom" title="Settings"></i>
-                  <i id="import_groove" class="fas fa-file-import cog_spacing" data-toggle="tooltip" data-placement="bottom" title="Import Groove"></i>
-                  <i id="export_groove" class="fas fa-download cog_spacing" data-toggle="tooltip" data-placement="bottom" title="Export Groove"></i>
                   <i id="day_icon" class="fas fa-moon dark_toggle" data-toggle="tooltip" data-placement="bottom" title="Toggle Night Mode"></i>
                   <i id="night_icon" class="far fa-moon dark_toggle" data-toggle="tooltip" data-placement="bottom" title="Toggle Night Mode"></i>
                 </div>
@@ -66,19 +64,19 @@
               <form id="export_form">
                 <div>
                   <p>
-                    The JSON (blue) text below can be used to backup the current groove for later use.
+                    Backup the groove below (blue text) to play and learn it at a later time.
                   </p>
 
                   <p>
-                    There are currently two options available.
+                    There are two options available.
                   </p>
 
                   <ol>
                     <li>
-                      Copy the JSON text below and paste it into a new issue <a href="https://github.com/bobbyrne01/play-along/issues" target="_blank">here</a>, to have it included permanently in the app for everyone to use.
+                      Copy groove and paste it into a new issue <a href="https://github.com/bobbyrne01/play-along/issues" target="_blank">here</a>, to have it included permanently in the app for everyone to use.
                     </li>
                     <li>
-                      Copy the JSON text below and paste it into a local file. Later, provide the same JSON to the 'Import Groove' dialog to resume.
+                      Save the groove to a local file. Later, provide it again to the Import Groove dialog.
                     </li>
                   </ol>
                 </div>
@@ -89,7 +87,7 @@
               </form>
 
               <div class="form-group shadow-textarea">
-                <label for="export_modal_body">Groove in JSON structure:</label>
+                <label for="export_modal_body">Groove:</label>
                 <textarea class="form-control z-depth-1" id="export_modal_body" rows="5" readonly></textarea>
               </div>
             </div>
@@ -133,18 +131,19 @@
             </div>
             <div class="modal-body">
               <div class="form-group shadow-textarea">
+                <h3>Backup your grooves</h3>
+                <p>
+                  <button class="btn btn-primary">Import <i id="import_groove" class="fas fa-upload cog_spacing" data-toggle="tooltip" data-placement="bottom" title="Import Groove"></i></button>
+                  <button class="btn btn-primary">Export <i id="export_groove" class="fas fa-download cog_spacing" data-toggle="tooltip" data-placement="bottom" title="Export Groove"></i></button>
+                </p>
+
                 <h3>Cookie <i class="fas fa-cookie-bite"></i></h3>
                 <p>
                   By enabling the checkbox below, you agree to allowing this application save to and read from a single cookie on your computer.
                 </p>
-                <p>
-                  The cookie can contain a backup of your custom grooves and some preferences (e.g Dark mode by default etc).
-                </p>
                 Accept <input type="checkbox" class="cookie_permission" />
-                <div class="form-group shadow-textarea">
-                  <label for="cookie_data">Cookie data stored on your computer:</label>
-                  <textarea class="form-control z-depth-1" id="cookie_data" rows="5" readonly></textarea>
-                </div>
+
+                <textarea class="form-control z-depth-1" id="cookie_data" rows="5" readonly></textarea>
               </div>
             </div>
             <div class="modal-footer">
